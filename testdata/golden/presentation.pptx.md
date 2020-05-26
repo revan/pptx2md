@@ -19,4 +19,4 @@
 This slide has no title, only freely formatted text.
 This text spans over multiple lines, without bullets.
 
-![image](pptimages/image1.jpeg)
+![image](pptimages/image1.png)

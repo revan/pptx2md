@@ -44,7 +44,8 @@ done
 imageNum=1
 while read line; do
 	if echo "$line" | grep -q "pptx2md PICTURE GOES HERE"; then
-		echo "![image](pptimages/image${imageNum}.jpeg)" >> $output
+	  imageName="$(find "${temp}/ppt/media" -name "image${imageNum}.*" -printf "%P")"
+		echo "![image](pptimages/${imageName})" >> $output
 		imageNum=$((imageNum+1))
 	else
 		echo "$line" >> "$output"
