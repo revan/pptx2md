@@ -25,18 +25,18 @@ fi
 #replace <> with \n, images with placeholder, strip style.visibilitypp
 for filename in $(ls "$temp"/ppt/slides/*.xml | sort --version-sort -f); do
 	cat $filename | \
-  sed -e "s/<p:cNvPr.*name=\"Picture [0-9]\+\".*\/>/pptx2md PICTURE GOES HERE/g" \
-        -e 's/<a:buNone\/>\(<[^>]*>\)\+/<a:buNone\/>/g' \
-	      -e 's/<a:pPr\ lvl="1"\/>\(<[^>]*>\)\+/<a:pPr\/>\n### /g' \
-        -e 's/<a:pPr\ lvl="2"\/>\(<[^>]*>\)\+/<a:pPr\/>\n#### /g' \
-        -e 's/<a:pPr\ lvl="3"\/>\(<[^>]*>\)\+/<a:pPr\/>\n##### /g' \
-        -e 's/<a:pPr\ lvl="4"\/>\(<[^>]*>\)\+/<a:pPr\/>\n###### /g' \
-        -e 's/<a:pPr\ lvl="5"\/>\(<[^>]*>\)\+/<a:pPr\/>\n####### /g' \
-        -e 's/<a:pPr\ lvl="6"\/>\(<[^>]*>\)\+/<a:pPr\/>\n######## /g' \
-        -e '0,/<\/a:rPr>\(<[^>]*>\)\+/s//<\/a:rPr\/>\n# /' \
-        -e 's/<\/a:rPr>\(<[^>]*>\)\+/<\/a:rPr\/>\n## /g' \
-        -e 's/\(<[^>]*>\)\+/\n/g' \
-	      -e's/style.visibility\n//g' \
+  sed -e "s/<p:cNvPr.*name=\"Picture [0-9]\+\".*\/>/\npptx2md PICTURE GOES HERE\n/g" \
+        -e 's/<a:buNone\/>\(<[^>]*>\)\+/<a:buNone\/>\n/g' \
+	      -e 's/<a:pPr\ lvl="1"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n### /g' \
+        -e 's/<a:pPr\ lvl="2"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n#### /g' \
+        -e 's/<a:pPr\ lvl="3"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n##### /g' \
+        -e 's/<a:pPr\ lvl="4"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n###### /g' \
+        -e 's/<a:pPr\ lvl="5"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n####### /g' \
+        -e 's/<a:pPr\ lvl="6"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n######## /g' \
+        -e '0,/<\/a:rPr>\(<[^>]*>\)\+/s//<\/a:rPr\/>\n\n# /' \
+        -e 's/<\/a:rPr>\(<[^>]*>\)\+/<\/a:rPr\/>\n\n## /g' \
+        -e 's/\(<[^>]*>\)\+//g' \
+	      -e 's/style.visibility\n//g' \
 	      >> $output_temp
 done
 
