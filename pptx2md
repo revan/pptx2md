@@ -26,7 +26,7 @@ fi
 for filename in $(ls "$temp"/ppt/slides/*.xml | sort --version-sort -f); do
 	cat $filename | \
 	  sed -e "s/<p:cNvPr .\+ name=\"Picture [0-9]\+\".\+\/>/pptx2md PICTURE GOES HERE/g" \
-	      -e 's/\(<[^>]*>\)\+/\n\n/g' \
+	      -e 's/\(<[^>]*>\)\+/\n/g' \
 	      -e's/style.visibility\n//g' \
 	      >> $output_temp
 done
