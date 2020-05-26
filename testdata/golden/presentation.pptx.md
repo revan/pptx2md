@@ -19,4 +19,10 @@
 This slide has no title, only freely formatted text.
 This text spans over multiple lines, without bullets.
 
+
+# Image Slide Title
 ![image](pptimages/image1.png)
+
+
+## This art is high quality
+

@@ -4,7 +4,6 @@ set -euo pipefail
 # pptx to markdown converter
 # Revan Sopher 2014
 # Creates folder pptimages and md file with unformatted text and images
-# TODO don't destroy formatting
 
 if [ $# -ne 1 ]; then
 	echo "Usage $0 <file.pptx>"
@@ -24,25 +23,29 @@ fi
 
 #replace <> with \n, images with placeholder, strip style.visibilitypp
 for filename in $(ls "$temp"/ppt/slides/*.xml | sort --version-sort -f); do
-	cat $filename | \
-  sed -e "s/<p:cNvPr.*name=\"Picture [0-9]\+\".*\/>/\npptx2md PICTURE GOES HERE\n/g" \
-        -e 's/<a:buNone\/>\(<[^>]*>\)\+/<a:buNone\/>\n/g' \
-	      -e 's/<a:pPr\ lvl="1"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n### /g' \
-        -e 's/<a:pPr\ lvl="2"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n#### /g' \
-        -e 's/<a:pPr\ lvl="3"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n##### /g' \
-        -e 's/<a:pPr\ lvl="4"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n###### /g' \
-        -e 's/<a:pPr\ lvl="5"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n####### /g' \
-        -e 's/<a:pPr\ lvl="6"\/>\(<[^>]*>\)\+/<a:pPr\/>\n\n######## /g' \
-        -e '0,/<\/a:rPr>\(<[^>]*>\)\+/s//<\/a:rPr\/>\n\n# /' \
-        -e 's/<\/a:rPr>\(<[^>]*>\)\+/<\/a:rPr\/>\n\n## /g' \
+  sed -e "s/<p:cNvPr[^>]*name=\"Picture [0-9]\+\"[^>]*>/\npptx2md PICTURE GOES HERE\n/g" \
+        -e 's/<a:buNone\/>\(<[^>]*>\)\+/\n/g' \
+        -e 's/<a:pPr\ lvl="1"\/>\(<[^>]*>\)\+/\n\n### /g' \
+        -e 's/<a:pPr\ lvl="2"\/>\(<[^>]*>\)\+/\n\n#### /g' \
+        -e 's/<a:pPr\ lvl="3"\/>\(<[^>]*>\)\+/\n\n##### /g' \
+        -e 's/<a:pPr\ lvl="4"\/>\(<[^>]*>\)\+/\n\n###### /g' \
+        -e 's/<a:pPr\ lvl="5"\/>\(<[^>]*>\)\+/\n\n####### /g' \
+        -e 's/<a:pPr\ lvl="6"\/>\(<[^>]*>\)\+/\n\n######## /g' \
+        -e '0,/<\/a:rPr>\(<[^>]*>\)\+/s//\n\n# /' \
+        -e 's/<\/a:rPr>\(<[^>]*>\)\+/\n\n## /g' \
         -e 's/\(<[^>]*>\)\+//g' \
-	      -e 's/style.visibility\n//g' \
-	      >> $output_temp
+        -e 's/style.visibility\n//g' \
+        "$filename" \
+        >> "$output_temp"
 done
+
+# Add empty line to end of file or next bit of processing will stumble.
+echo -e '\n' >> $output_temp
 
 #next, we replace placeholder text with an incrementing image link
 imageNum=1
 while read line; do
+	# TODO extract image alt text
 	if echo "$line" | grep -q "pptx2md PICTURE GOES HERE"; then
 	  imageName="$(find "${temp}/ppt/media" -name "image${imageNum}.*" -printf "%P")"
 		echo "![image](pptimages/${imageName})" >> $output
@@ -50,9 +53,9 @@ while read line; do
 	else
 		echo "$line" >> "$output"
 	fi
-done < $output_temp
+done < "$output_temp"
 
 #copy final files, clean up
-cp -rf ${temp}/ppt/media ./pptimages/
-cp $output .
+cp -rf "${temp}/ppt/media" ./pptimages/
+cp "$output" .
 rm -rf /tmp/pptx2md
