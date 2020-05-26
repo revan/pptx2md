@@ -15,15 +15,19 @@ output="$temp/$(basename $1).md"
 output2="$temp/$(basename $1)2.md"
 
 #extract file
-unzip -oq -d $temp $1
+unzip -oq -d $temp "$1"
 if [ $? -ne 0 ]; then
 	echo "Failed to extract."
 	exit 1
 fi
 
-#replace <> with \n, images with placeholder, strip style.visibility
-for filename in $(ls $temp/ppt/slides/*.xml | sort --version-sort -f); do
-	cat $filename | sed -e "s/<p:cNvPr .\+ id=\"[0-9]\+\" name=\"Picture [0-9]\+\"\/>/pptx2md PICTURE GOES HERE/g" -e 's/\(<[^>]*>\)\+/\n\n/g' -e's/style.visibility\n//g' >> $output
+#replace <> with \n, images with placeholder, strip style.visibilitypp
+for filename in $(ls "$temp"/ppt/slides/*.xml | sort --version-sort -f); do
+	cat $filename | \
+	  sed -e "s/<p:cNvPr .\+ name=\"Picture [0-9]\+\".\+\/>/pptx2md PICTURE GOES HERE/g" \
+	      -e 's/\(<[^>]*>\)\+/\n\n/g' \
+	      -e's/style.visibility\n//g' \
+	      >> $output
 done
 
 #next, we replace placeholder text with an incrementing image link
@@ -33,7 +37,7 @@ while read line; do
 		echo "![image](pptimages/image${imageNum}.jpeg)" >> $output2
 		imageNum=$((imageNum+1))
 	else
-		echo "$line" >> $output2
+		echo "$line" >> "$output2"
 	fi
 done < $output
 
