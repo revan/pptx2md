@@ -11,8 +11,8 @@ if [ $# -ne 1 ]; then
 fi
 
 temp="/tmp/pptx2md"
+output_temp="$temp/$(basename $1)_temp.md"
 output="$temp/$(basename $1).md"
-output2="$temp/$(basename $1)2.md"
 
 #extract file
 unzip -oq -d $temp "$1"
@@ -27,21 +27,21 @@ for filename in $(ls "$temp"/ppt/slides/*.xml | sort --version-sort -f); do
 	  sed -e "s/<p:cNvPr .\+ name=\"Picture [0-9]\+\".\+\/>/pptx2md PICTURE GOES HERE/g" \
 	      -e 's/\(<[^>]*>\)\+/\n\n/g' \
 	      -e's/style.visibility\n//g' \
-	      >> $output
+	      >> $output_temp
 done
 
 #next, we replace placeholder text with an incrementing image link
 imageNum=1
 while read line; do
 	if echo "$line" | grep -q "pptx2md PICTURE GOES HERE"; then
-		echo "![image](pptimages/image${imageNum}.jpeg)" >> $output2
+		echo "![image](pptimages/image${imageNum}.jpeg)" >> $output
 		imageNum=$((imageNum+1))
 	else
-		echo "$line" >> "$output2"
+		echo "$line" >> "$output"
 	fi
-done < $output
+done < $output_temp
 
 #copy final files, clean up
 cp -rf ${temp}/ppt/media ./pptimages/
-cp $output2 .
+cp $output .
 rm -rf /tmp/pptx2md
